@@ -1,0 +1,157 @@
+<html>
+	<head>
+		<title>BigDog Metronome</title>
+		<style type="text/css">
+			body {
+				margin: 0px;
+				padding: 0px;
+				font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", 
+  Helvetica, Arial, "Lucida Grande", sans-serif;
+				min-width: 35rem;
+			}
+
+			#main {
+				width: 30rem;
+				height: 30rem;
+				margin: 10rem auto 0px auto;
+				border: 2px solid #000000;
+				border-radius: 0.3rem;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+			}
+
+			#time-signature {
+				flex: 1 1 50%;
+				text-align: center;
+				font-size: 3rem;
+			}
+
+			#bpm {
+				flex: 1 1 50%;
+				text-align: center;
+				font-size: 3rem;
+			}
+
+			#counter {
+				flex: 1 1 100%;
+				text-align: center;
+				font-size: 3rem;
+			}
+
+			#stop {
+				flex: 1 1 50%;
+				text-align: center;
+				font-size: 2rem;
+				cursor: pointer;
+			}
+
+			#start {
+				flex: 1 1 50%;
+				text-align: center;
+				font-size: 2rem;
+				cursor: pointer;
+			}
+
+			.bpm-bubble {
+				flex: 1 1 10%;
+				border: 1px solid #000000;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="main">
+			<div id="time-signature">4/4</div>
+			<div id="bpm">120 bpm</div>
+			<div id="counter">1 2 3 4</div>
+			<div id="stop">stop</div>
+			<div id="start">start</div>
+			<div class="bpm-bubble">80</div>
+			<div class="bpm-bubble">90</div>
+			<div class="bpm-bubble">100</div>
+			<div class="bpm-bubble">110</div>
+			<div class="bpm-bubble">120</div>
+			<div class="bpm-bubble">130</div>
+			<div class="bpm-bubble">140</div>
+			<div class="bpm-bubble">150</div>
+			<div class="bpm-bubble">160</div>
+			<div class="bpm-bubble">170</div>
+			<div class="bpm-bubble">180</div>
+			<div class="bpm-bubble">190</div>
+			<div class="bpm-bubble">200</div>
+			<div class="bpm-bubble">210</div>
+			<div class="bpm-bubble">220</div>
+			<div class="bpm-bubble">230</div>
+			<div class="bpm-bubble">240</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		let bpm = 120;
+		let beatsPerMeasure = 4;
+		let noteValue = 4;
+		let secondsPerBeat = 100;
+		let currentBeat = 1;
+		let metronomeInterval = null;
+		let audio = {
+			down: new Audio('media/down.mp3'),
+			up: new Audio('media/up.mp3'),
+		}
+
+		let calculateSecondsPerBeat = () => {
+			let milliseconds = 60000 / bpm;
+			return milliseconds;
+		}
+
+		let setBpm = (event) => {
+			let newBpm = parseInt(event.target.innerHTML);
+			bpm = newBpm;
+			document.getElementById('bpm').innerHTML = `${bpm} bpm`;
+			if(metronomeInterval !== null){
+				startMetronome(false);
+			}
+		}
+
+		let stopMetronome = () => {
+			clearInterval(metronomeInterval);
+			metronomeInterval = null;
+		}
+
+		let startMetronome = (reset) => {
+			stopMetronome();
+			if(reset){
+				currentBeat = beatsPerMeasure;
+			}
+			metronomeInterval = setInterval(doMetronome, calculateSecondsPerBeat());
+		}
+
+		let doMetronome = () => {
+			if(currentBeat === 1){
+				audio.down.pause();
+				audio.down.currentTime === 0;
+			}else{
+				audio.up.pause();
+				audio.up.currentTime === 0;
+			}
+			currentBeat++;
+			if(currentBeat > beatsPerMeasure){
+				currentBeat = 1;
+			}
+			if(currentBeat === 1){
+				audio.down.play();
+			}else{
+				audio.up.play();
+			}
+			let beats = [...Array(beatsPerMeasure+1).keys()];
+			beats[currentBeat] = `<b>${beats[currentBeat]}</b>`;
+			beats.shift();
+			document.getElementById('counter').innerHTML = beats.join(' ');
+		}
+
+		document.getElementById('stop').addEventListener('click', stopMetronome);
+		document.getElementById('start').addEventListener('click', ()=>{ startMetronome(true); });
+		Array.from(document.getElementsByClassName('bpm-bubble')).forEach(function(element) {
+			element.addEventListener('click', setBpm);
+		});
+	</script>
+</html>
